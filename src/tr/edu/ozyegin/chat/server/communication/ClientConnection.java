@@ -14,9 +14,9 @@ public class ClientConnection {
 		this.asynchronousSocketChannel = asynchronousSocketChannel;
 		this.byteBuffer = ByteBuffer.allocateDirect(4096);
 		
-		
 	}
 
+	
 	
 	
 }
