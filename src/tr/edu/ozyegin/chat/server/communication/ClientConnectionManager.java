@@ -3,17 +3,18 @@ package tr.edu.ozyegin.chat.server.communication;
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.LinkedBlockingQueue;
 
-public class ClientConnectionManager implements NewClientConnectionHandler, Runnable {
+public class ClientConnectionManager implements Runnable {
 	
 	private ClientConnectionListener clientConnectionListener;
-	private CopyOnWriteArrayList<ClientConnection> clientConnections;
-	private Thread runner;
 	
+	private Thread runner;
+	private LinkedBlockingQueue<ClientMessage> messageQueue;
 	
 	public ClientConnectionManager(SocketAddress localListeningAddress) {
 		this.clientConnectionListener = new ClientConnectionListener(this, localListeningAddress);
-		this.clientConnections = new CopyOnWriteArrayList<>();
+		this.messageQueue = new LinkedBlockingQueue<ClientMessage>();
 		this.runner = new Thread(this);
 	}
 	
@@ -22,16 +23,25 @@ public class ClientConnectionManager implements NewClientConnectionHandler, Runn
 		this.runner.start();
 	}
 
-	@Override
+	
 	public void handleNewClientConnection(ClientConnection clientConnection) {
-		this.clientConnections.add(clientConnection);
+		clientConnection.setClientConnectionManager(this);
+		clientConnection.start();
 	}
 
+	public void processClientMessage(ClientMessage clientMessage) {
+		this.messageQueue.add(clientMessage);
+	}
 	
 	@Override
 	public void run() {
 		while(true) {
-			for (ClientConnection c : this.clientConnections) {
+			try {
+				ClientMessage message = messageQueue.take();
+				
+				
+				
+			} catch (Exception e) {
 				
 			}
 			

@@ -61,7 +61,11 @@ public class ByteBufferToStringConverter {
 	}
 
 	public String getString() {
-		return queue.pop();
+		if (queue.isEmpty()) {
+			return null;
+		} else {
+			return queue.pop();
+		}
 	
 	}
 	
