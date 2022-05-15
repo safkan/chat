@@ -20,7 +20,9 @@ public class ByteBufferToStringConverter {
 	
 	public void consumeBuffer(ByteBuffer buf) {
 		
+		buf.flip();
 		
+		System.out.println("buf.remaining() :" + buf.remaining());
 		
 		while (buf.remaining() > 0) {
 			if (bytes == null) {
@@ -56,6 +58,8 @@ public class ByteBufferToStringConverter {
 				
 			}
 		}
+		
+		buf.clear();
 		
 		
 	}

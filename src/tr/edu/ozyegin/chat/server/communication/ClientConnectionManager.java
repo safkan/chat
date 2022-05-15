@@ -5,16 +5,20 @@ import java.net.SocketAddress;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import tr.edu.ozyegin.chat.messages.LoginRequest;
+
 public class ClientConnectionManager implements Runnable {
 	
 	private ClientConnectionListener clientConnectionListener;
 	
 	private Thread runner;
 	private LinkedBlockingQueue<ClientMessage> messageQueue;
+	private MessageReceiver messageReceiver;
 	
-	public ClientConnectionManager(SocketAddress localListeningAddress) {
+	public ClientConnectionManager(SocketAddress localListeningAddress, MessageReceiver messageReceiver) {
 		this.clientConnectionListener = new ClientConnectionListener(this, localListeningAddress);
 		this.messageQueue = new LinkedBlockingQueue<ClientMessage>();
+		this.messageReceiver = messageReceiver;
 		this.runner = new Thread(this);
 	}
 	
@@ -39,6 +43,7 @@ public class ClientConnectionManager implements Runnable {
 			try {
 				ClientMessage message = messageQueue.take();
 				
+				this.messageReceiver.receive(message);
 				
 				
 			} catch (Exception e) {
@@ -47,5 +52,7 @@ public class ClientConnectionManager implements Runnable {
 			
 		}
 	}
+	
+	
 	
 }

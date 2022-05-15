@@ -27,7 +27,7 @@ public class StringToByteBufferConverter {
 			try {
 				buf.put(bytes[i]);
 			} catch (BufferOverflowException e) {
-				buffers.add(buf.rewind());
+				buffers.add(buf.flip());
 				buf = ByteBuffer.allocateDirect(BUFFER_SIZE);
 				
 				buf.put(bytes[i]);

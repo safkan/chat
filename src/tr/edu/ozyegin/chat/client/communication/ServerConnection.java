@@ -1,51 +1,53 @@
-package tr.edu.ozyegin.chat.server.communication;
+package tr.edu.ozyegin.chat.client.communication;
 
+import java.io.IOException;
+import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
+import java.util.concurrent.ExecutionException;
 
 import tr.edu.ozyegin.chat.protocol.ByteBufferToStringConverter;
 import tr.edu.ozyegin.chat.protocol.JsonConverter;
 import tr.edu.ozyegin.chat.protocol.StringToByteBufferConverter;
 
-public class ClientConnection implements CompletionHandler<Integer, ByteBuffer>{
+public class ServerConnection implements CompletionHandler<Integer, ByteBuffer>{
 
 	private AsynchronousSocketChannel asynchronousSocketChannel;
+	private SocketAddress socketAddress;
 	private ByteBuffer byteBuffer;
 	private ByteBufferToStringConverter byteBufferToStringConverter;
-	private ClientConnectionManager clientConnectionManager;
 	private JsonConverter jsonConverter;
 	
-	
-
-	protected ClientConnection(AsynchronousSocketChannel asynchronousSocketChannel) {
-		this.asynchronousSocketChannel = asynchronousSocketChannel;
-		this.byteBufferToStringConverter = new ByteBufferToStringConverter();
+	public ServerConnection(SocketAddress socketAddress) {
+		this.socketAddress = socketAddress;
 		this.byteBuffer = ByteBuffer.allocateDirect(4096);
+		this.byteBufferToStringConverter = new ByteBufferToStringConverter();
 		this.jsonConverter = new JsonConverter();
-		
 	}
-
-	protected void setClientConnectionManager(ClientConnectionManager clientConnectionManager) {
-		this.clientConnectionManager = clientConnectionManager;
-	}
-
-	public void start() {
-		this.read();
-	}
-
 	
-	public void write(Object obj) throws Exception {
-		String json = this.jsonConverter.serialize(obj);
+	public void send(Object obj) throws Exception {
+		String json = jsonConverter.serialize(obj);
+		
 		ByteBuffer[] buffers = StringToByteBufferConverter.convert(json);
 		
 		for (ByteBuffer buf : buffers) {
 			this.asynchronousSocketChannel.write(buf).get();
 		}
+		
+	}
+	
+	public void connect() throws IOException, ExecutionException, InterruptedException {
+		this.asynchronousSocketChannel = AsynchronousSocketChannel.open();
+		
+		this.asynchronousSocketChannel.connect(socketAddress).get();
+		
+		this.read();
+		
 	}
 	
 	private void read() {
-		this.asynchronousSocketChannel.read(this.byteBuffer, this.byteBuffer, this);;
+		this.asynchronousSocketChannel.read(this.byteBuffer, this.byteBuffer, this);
 	}
 
 	@Override
@@ -54,7 +56,6 @@ public class ClientConnection implements CompletionHandler<Integer, ByteBuffer>{
 			return;
 		}
 		
-		
 		this.byteBufferToStringConverter.consumeBuffer(buf);
 		
 		String s;
@@ -62,14 +63,11 @@ public class ClientConnection implements CompletionHandler<Integer, ByteBuffer>{
 		do {
 			s = this.byteBufferToStringConverter.getString();
 			
-			if (s != null) {
+			System.out.println("Client message received: " + s);
 			
-				System.out.println("Server message received: " + s);
-				
-				Object message = this.jsonConverter.deserialize(s);
-				
-				ClientMessage clientMessage = new ClientMessage(this, message);
-			}
+			Object message = this.jsonConverter.deserialize(s);
+			
+			
 		} while(s != null);
 		
 		this.read();
@@ -83,6 +81,5 @@ public class ClientConnection implements CompletionHandler<Integer, ByteBuffer>{
 	}
 
 
-	
 	
 }
