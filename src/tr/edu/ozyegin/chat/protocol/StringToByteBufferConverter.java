@@ -3,7 +3,6 @@ package tr.edu.ozyegin.chat.protocol;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.text.StringCharacterIterator;
 import java.util.ArrayList;
 
 public class StringToByteBufferConverter {
