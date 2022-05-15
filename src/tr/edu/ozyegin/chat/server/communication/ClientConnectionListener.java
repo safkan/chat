@@ -2,12 +2,9 @@ package tr.edu.ozyegin.chat.server.communication;
 
 import java.io.IOException;
 import java.net.SocketAddress;
-import java.nio.channels.AsynchronousChannelGroup;
 import java.nio.channels.AsynchronousServerSocketChannel;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class ClientConnectionListener implements Runnable, CompletionHandler<AsynchronousSocketChannel, Void> {
 	private static final int DEFAULT_BACKLOG = 5;
