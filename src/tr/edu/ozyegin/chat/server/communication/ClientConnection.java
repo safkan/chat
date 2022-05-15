@@ -69,6 +69,8 @@ public class ClientConnection implements CompletionHandler<Integer, ByteBuffer>{
 				Object message = this.jsonConverter.deserialize(s);
 				
 				ClientMessage clientMessage = new ClientMessage(this, message);
+				
+				this.clientConnectionManager.processClientMessage(clientMessage);
 			}
 		} while(s != null);
 		

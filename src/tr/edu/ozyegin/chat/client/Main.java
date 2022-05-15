@@ -4,6 +4,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
 import tr.edu.ozyegin.chat.client.communication.ServerConnection;
+import tr.edu.ozyegin.chat.messages.LoginRequest;
 
 public class Main {
 
@@ -14,7 +15,14 @@ public class Main {
 		
 		serverConnection.connect();
 		
-		serverConnection.send("The hell with the server, please.");
+		LoginRequest loginRequest = new LoginRequest();
+		
+		loginRequest.username = "safkan";
+		loginRequest.password = "safkan";
+		
+		serverConnection.send(loginRequest);
+		
+		
 		
 		Thread.sleep(10000);
 	}

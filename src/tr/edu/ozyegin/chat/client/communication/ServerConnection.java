@@ -63,10 +63,12 @@ public class ServerConnection implements CompletionHandler<Integer, ByteBuffer>{
 		do {
 			s = this.byteBufferToStringConverter.getString();
 			
-			System.out.println("Client message received: " + s);
+			if (s != null) {
 			
-			Object message = this.jsonConverter.deserialize(s);
+				System.out.println("Client message received: " + s);
 			
+				Object message = this.jsonConverter.deserialize(s);
+			}
 			
 		} while(s != null);
 		

@@ -47,7 +47,8 @@ public class ClientConnectionManager implements Runnable {
 				
 				
 			} catch (Exception e) {
-				
+				System.out.println(e.toString());
+				System.out.println(e.getMessage());
 			}
 			
 		}
