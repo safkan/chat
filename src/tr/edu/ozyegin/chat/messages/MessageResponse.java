@@ -1,7 +1,7 @@
 package tr.edu.ozyegin.chat.messages;
 
 public class MessageResponse {
-	String time;
-	String sender;
-	String message;
+	public String time;
+	public String sender;
+	public String message;
 }

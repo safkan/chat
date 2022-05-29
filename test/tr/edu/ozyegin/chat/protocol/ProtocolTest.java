@@ -17,11 +17,9 @@ class ProtocolTest {
 	}
 	
 	private void test(String s) {
-		ByteBuffer[] buffers = StringToByteBufferConverter.convert(s);
+		ByteBuffer buffer = StringToByteBufferConverter.convert(s);
 		
-		for (ByteBuffer buf : buffers) {
-			this.decoder.consumeBuffer(buf); 
-		}
+		this.decoder.consumeBuffer(buffer); 
 		
 		String p = this.decoder.getString();
 		

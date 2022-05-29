@@ -7,6 +7,10 @@ import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 import java.util.concurrent.ExecutionException;
 
+import tr.edu.ozyegin.chat.client.ChatMessageListener;
+import tr.edu.ozyegin.chat.messages.LoginResponse;
+import tr.edu.ozyegin.chat.messages.MessageHistoryResponse;
+import tr.edu.ozyegin.chat.messages.MessageResponse;
 import tr.edu.ozyegin.chat.protocol.ByteBufferToStringConverter;
 import tr.edu.ozyegin.chat.protocol.JsonConverter;
 import tr.edu.ozyegin.chat.protocol.StringToByteBufferConverter;
@@ -18,6 +22,7 @@ public class ServerConnection implements CompletionHandler<Integer, ByteBuffer>{
 	private ByteBuffer byteBuffer;
 	private ByteBufferToStringConverter byteBufferToStringConverter;
 	private JsonConverter jsonConverter;
+	private ChatMessageListener chatMessageListener;
 	
 	public ServerConnection(SocketAddress socketAddress) {
 		this.socketAddress = socketAddress;
@@ -26,14 +31,36 @@ public class ServerConnection implements CompletionHandler<Integer, ByteBuffer>{
 		this.jsonConverter = new JsonConverter();
 	}
 	
+	public void registerChatMessageListener(ChatMessageListener chatMessageListener) {
+		if (this.chatMessageListener == null) {
+			this.chatMessageListener = chatMessageListener;
+		} else {
+			throw new IllegalStateException("A ChatMessageListener is already registered.");
+		}
+	}
+	
+	private void publishMessage(Object message) {
+		if (this.chatMessageListener == null) {
+			return;
+		}
+		
+		if (message instanceof LoginResponse) {
+			this.chatMessageListener.loginResponseReceived((LoginResponse) message);
+		} else if (message instanceof MessageHistoryResponse) {
+			this.chatMessageListener.messageHistoryResponseReceived((MessageHistoryResponse)message);
+		} else if (message instanceof MessageResponse) {
+			this.chatMessageListener.messageResponseReceived((MessageResponse)message);
+		}
+	}
+	
 	public void send(Object obj) throws Exception {
 		String json = jsonConverter.serialize(obj);
 		
-		ByteBuffer[] buffers = StringToByteBufferConverter.convert(json);
+		ByteBuffer buffer = StringToByteBufferConverter.convert(json);
 		
-		for (ByteBuffer buf : buffers) {
-			this.asynchronousSocketChannel.write(buf).get();
-		}
+		buffer.flip();
+		
+		this.asynchronousSocketChannel.write(buffer).get();
 		
 	}
 	
@@ -68,6 +95,10 @@ public class ServerConnection implements CompletionHandler<Integer, ByteBuffer>{
 				System.out.println("Client message received: " + s);
 			
 				Object message = this.jsonConverter.deserialize(s);
+				
+				this.publishMessage(message);
+				
+				
 			}
 			
 		} while(s != null);

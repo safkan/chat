@@ -15,8 +15,24 @@ public class ClientConnection implements CompletionHandler<Integer, ByteBuffer>{
 	private ByteBufferToStringConverter byteBufferToStringConverter;
 	private ClientConnectionManager clientConnectionManager;
 	private JsonConverter jsonConverter;
+	private String authenticatedUsername;
+	private String accessToken;
 	
-	
+	public String getAccessToken() {
+		return accessToken;
+	}
+
+	public void setAccessToken(String accessToken) {
+		this.accessToken = accessToken;
+	}
+
+	public String getAuthenticatedUsername() {
+		return authenticatedUsername;
+	}
+
+	public void setAuthenticatedUsername(String authenticatedUsername) {
+		this.authenticatedUsername = authenticatedUsername;
+	}
 
 	protected ClientConnection(AsynchronousSocketChannel asynchronousSocketChannel) {
 		this.asynchronousSocketChannel = asynchronousSocketChannel;
@@ -25,31 +41,34 @@ public class ClientConnection implements CompletionHandler<Integer, ByteBuffer>{
 		this.jsonConverter = new JsonConverter();
 		
 	}
-
+	
 	protected void setClientConnectionManager(ClientConnectionManager clientConnectionManager) {
 		this.clientConnectionManager = clientConnectionManager;
 	}
 
 	public void start() {
+		System.out.println("ClientConnection.start()");
+		
 		this.read();
 	}
 
 	
 	public void write(Object obj) throws Exception {
 		String json = this.jsonConverter.serialize(obj);
-		ByteBuffer[] buffers = StringToByteBufferConverter.convert(json);
-		
-		for (ByteBuffer buf : buffers) {
-			this.asynchronousSocketChannel.write(buf).get();
-		}
+		ByteBuffer buffer = StringToByteBufferConverter.convert(json);
+		this.asynchronousSocketChannel.write(buffer).get();
 	}
 	
 	private void read() {
-		this.asynchronousSocketChannel.read(this.byteBuffer, this.byteBuffer, this);;
+		this.asynchronousSocketChannel.read(this.byteBuffer, this.byteBuffer, this);
 	}
 
 	@Override
 	public void completed(Integer bytesRead, ByteBuffer buf) {
+		System.out.println("ClientConnection.completed, bytes read: " + bytesRead);
+		
+		System.out.println("remaining " + buf.remaining());
+		
 		if (bytesRead <= 0) {
 			return;
 		}
@@ -80,7 +99,7 @@ public class ClientConnection implements CompletionHandler<Integer, ByteBuffer>{
 
 	@Override
 	public void failed(Throwable exc, ByteBuffer buf) {
-		// TODO Auto-generated method stub
+		System.out.println("Read failed." + exc.toString());
 		
 	}
 

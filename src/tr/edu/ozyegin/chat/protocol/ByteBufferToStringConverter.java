@@ -20,6 +20,17 @@ public class ByteBufferToStringConverter {
 	
 	public void consumeBuffer(ByteBuffer buf) {
 		
+		// If too few bytes are available at the beginning of the buffer, and we can not
+		// read the length (we need to read 4 bytes) then we do not consume the buffer
+		// at all. --YS, 27.05.2022
+		/*
+		if (bytes == null && buf.remaining() < 4) {
+			return;
+		}
+		*/
+		
+		System.out.println("Will attempt to consume buffer, remaining:" + buf.remaining());
+		
 		buf.flip();
 		
 		System.out.println("buf.remaining() :" + buf.remaining());

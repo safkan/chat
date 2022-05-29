@@ -41,6 +41,8 @@ public class ClientConnectionListener implements CompletionHandler<AsynchronousS
 
 	@Override
 	public void completed(AsynchronousSocketChannel result, Void attachment) {
+		System.out.println("New client connection to server!");
+		
 		ClientConnection clientConnection = new ClientConnection(result);
 		
 		this.newClientConnectionHandler.handleNewClientConnection(clientConnection);

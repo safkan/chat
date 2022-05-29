@@ -43,6 +43,8 @@ public class ClientConnectionManager implements Runnable {
 			try {
 				ClientMessage message = messageQueue.take();
 				
+				System.out.println("Client message received:" + message);
+				
 				this.messageReceiver.receive(message);
 				
 				
